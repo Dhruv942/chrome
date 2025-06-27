@@ -35,5 +35,9 @@ app.use('/api/tab/github', githubTabRoutes);
 app.use('/api/tab/calendar', refreshTokenMiddleware, calendarTabRoutes);
 app.use('/api/tab/recommendations', refreshTokenMiddleware, recommendationsTabRoutes);
 
+app.get('/', (req, res) => {
+  res.send('✅ Backend API is live on Vercel!');
+});
+
 // 👇 this is required in Vercel
 module.exports = app;
