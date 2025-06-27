@@ -10,7 +10,7 @@ const User = require('../models/User'); // Correct path to your User model
 // GitHub OAuth configuration (LOAD FROM .ENV)
 const GITHUB_CLIENT_ID = ""
 const GITHUB_CLIENT_SECRET = ""
-const GITHUB_REDIRECT_URI = ""
+const GITHUB_REDIRECT_URI = "http://localhost:3000/api/auth/github/callback"
 
 
 // --- Step 1: Redirect to GitHub for Authorization ---
