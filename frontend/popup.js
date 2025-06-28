@@ -1,8 +1,8 @@
 // popup.js
 document.addEventListener('DOMContentLoaded', initializeExtension);
 
-const BASE_API_URL = 'http://localhost:3000/api/tab'; // Base URL for all your tab APIs
-const AUTH_API_URL = 'http://localhost:3000/api/auth'; // Base URL for authentication APIs
+const BASE_API_URL = 'https://chrome-hb9p.onrender.com/api/tab'; // Base URL for all your tab APIs
+const AUTH_API_URL = 'https://chrome-hb9p.onrender.com/api/auth'; // Base URL for authentication APIs
 
 // --- UI Elements (Global Declarations - assigned in initializeExtension) ---
 let loadingSpinner;
