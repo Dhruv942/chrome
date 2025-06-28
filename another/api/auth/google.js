@@ -155,12 +155,14 @@ router.get('/', async (req, res) => {
         });
         
         // Set cookie
-        res.cookie('user_id', user._id, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
-        });
+ res.cookie('user_id', user._id, {
+    httpOnly: true,
+    // On Render, NODE_ENV is 'production', so this will correctly be `true`
+    secure: process.env.NODE_ENV === 'production', 
+    // This is the critical change that allows the cookie to be sent from the extension
+    sameSite: 'none', 
+    maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
+});
 
         // Send success response
         const successHtml = `
