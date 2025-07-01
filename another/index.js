@@ -29,6 +29,17 @@ const whitelist = [
 ];
 
 console.log('CORS Whitelist:', whitelist); // This will show in your server logs
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Public pages for OAuth Consent Screen
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/privacy-policy.html'));
+});
+
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/home.html'));
+});
 
 const corsOptions = {
   origin: function (origin, callback) {
