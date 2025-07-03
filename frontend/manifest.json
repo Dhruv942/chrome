@@ -14,7 +14,8 @@
     "default_popup": "popup.html"
   
   },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:3000 https://github.com; font-src 'self';" 
-  }
+"content_security_policy": {
+  "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://chrome-hb9p.onrender.com"
+}
+
 }

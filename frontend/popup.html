@@ -1,38 +1,42 @@
+<!-- popup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professional Dashboard</title>
+    <!-- ADD THIS LINE FOR ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
     <!-- Overall Container for the Extension Popup -->
     <div class="extension-wrapper">
-        <!-- Loading Indicator -->
+        <!-- Loading Indicator and Status Messages (always on top) -->
         <div id="loading-spinner" class="loading-spinner hidden"></div>
+        <div id="status-message" class="status-message hidden"></div> <!-- NEW STATUS MESSAGE DIV -->
         <div id="error-message" class="error-message hidden"></div>
 
         <!-- Login UI -->
         <div id="login-container" class="auth-container">
-            <h1>Welcome to Your Dashboard</h1>
-            <p>Please log in to continue.</p>
+            <i class="fa-solid fa-rocket auth-icon"></i>
+            <h1>Welcome Aboard</h1>
+            <p>Log in to unify your digital workspace.</p>
             <button id="google-login-btn" class="login-btn google-btn">
-                Login with Google
+                <i class="fa-brands fa-google"></i> Login with Google
             </button>
-            <!-- GitHub Login button removed from here, now in GitHub tab -->
-            <p class="login-hint">A new tab will open for authentication. Please close it after logging in, then reload this extension.</p>
+            <p class="login-hint">A new tab will open for authentication. Close it after logging in and reopen the extension.</p>
         </div>
 
         <!-- Dashboard UI -->
         <div id="dashboard-container" class="dashboard-container hidden">
             <!-- Top Navigation Tabs -->
             <div class="tabs-nav">
-                <div class="tab-item active" data-tab="recommendations">Recommendations</div>
-                <div class="tab-item" data-tab="gmail">Gmail</div>
-                <div class="tab-item" data-tab="linkedin">LinkedIn</div>
-                <div class="tab-item" data-tab="github">GitHub</div>
-                <div class="tab-item" data-tab="calendar">Calendar</div>
+                <div class="tab-item active" data-tab="recommendations"><i class="fa-solid fa-star"></i>Recommendations</div>
+                <div class="tab-item" data-tab="gmail"><i class="fa-solid fa-envelope"></i>Gmail</div>
+                <div class="tab-item" data-tab="linkedin"><i class="fa-brands fa-linkedin"></i>LinkedIn</div>
+                <div class="tab-item" data-tab="github"><i class="fa-brands fa-github"></i>GitHub</div>
+                <div class="tab-item" data-tab="calendar"><i class="fa-solid fa-calendar-days"></i>Calendar</div>
             </div>
 
             <!-- Main Content Area -->
@@ -41,58 +45,46 @@
                 <div id="recommendations-content" class="tab-content active">
                     <div class="content-header">
                         <h2>Personalized Feed</h2>
-                        <button id="manage-whitelist-btn" class="manage-btn">Manage Whitelist</button>
+                        <button id="manage-whitelist-btn" class="manage-btn"><i class="fa-solid fa-sliders"></i>Manage Rules</button>
                     </div>
                     <div class="item-list" id="recommendations-list">
-                        <p class="empty-state">Loading recommendations...</p>
+                        <!-- Items will be populated by JS -->
                     </div>
                 </div>
 
                 <!-- Other Tab Contents -->
                 <div id="gmail-content" class="tab-content">
-                    <h2>Gmail Inbox</h2>
-                    <div class="item-list" id="gmail-list">
-                        <p class="empty-state">Loading emails...</p>
-                    </div>
+                     <div class="content-header"><h2>Gmail Inbox</h2></div>
+                    <div class="item-list" id="gmail-list"></div>
                 </div>
 
                 <div id="linkedin-content" class="tab-content">
-                    <h2>LinkedIn Updates</h2>
-                    <div class="item-list" id="linkedin-list">
-                        <p class="empty-state">Loading LinkedIn data...</p>
-                        <p class="empty-state">*(LinkedIn API integration not fully defined in backend, showing placeholder)*</p>
-                    </div>
+                    <div class="content-header"><h2>LinkedIn Updates</h2></div>
+                    <div class="item-list" id="linkedin-list"></div>
                 </div>
 
-                <!-- GitHub Tab Content (Modified) -->
                 <div id="github-content" class="tab-content">
-                    <h2>GitHub Activity</h2>
-                    <!-- GitHub Specific Authentication Prompt -->
+                    <div class="content-header"><h2>GitHub Activity</h2></div>
                     <div id="github-auth-prompt" class="auth-prompt hidden">
                         <p>Connect your GitHub account to see your activity.</p>
                         <button id="github-login-btn-tab" class="login-btn github-btn">
-                            Login with GitHub
-                        </button> 
-                        <p class="login-hint">A new tab will open for authentication. Please close it after logging in, then reload this extension.</p>
+                           <i class="fa-brands fa-github"></i> Login with GitHub
+                        </button>
+                        <p class="login-hint">A new tab will open for authentication.</p>
                     </div>
-                    <!-- GitHub Content List (Initially shows loading, then populated or remains hidden if not authenticated) -->
-                    <div class="item-list" id="github-list">
-                        <p class="empty-state">Loading GitHub data...</p>
-                    </div>
+                    <div class="item-list" id="github-list"></div>
                 </div>
 
                 <div id="calendar-content" class="tab-content">
-                    <h2>Upcoming Events</h2>
-                    <div class="item-list" id="calendar-list">
-                        <p class="empty-state">Loading calendar events...</p>
-                    </div>
+                    <div class="content-header"><h2>Upcoming Events</h2></div>
+                    <div class="item-list" id="calendar-list"></div>
                 </div>
             </div>
 
             <!-- Right-side Whitelist Panel -->
             <div id="whitelist-sidebar" class="whitelist-sidebar">
                 <button id="close-whitelist-btn" class="close-btn">×</button>
-                <h3>Manage Whitelist Rules</h3>
+                <h3><i class="fa-solid fa-shield-halved"></i> Whitelist Rules</h3>
                 <div class="whitelist-input-section">
                     <select id="whitelist-source" class="whitelist-dropdown">
                         <option value="">Select Source</option>
@@ -103,25 +95,25 @@
                     <select id="whitelist-type" class="whitelist-dropdown" disabled>
                         <option value="">Select Type</option>
                     </select>
-                    <input type="text" id="whitelist-value-input" placeholder="e.g., important@domain.com or repository/name">
+                    <input type="text" id="whitelist-value-input" placeholder="e.g., important@domain.com">
                     <div class="whitelist-options">
                         <label><input type="checkbox" id="whitelist-urgent"> Urgent</label>
                         <label><input type="checkbox" id="whitelist-important"> Important</label>
-                        <input type="text" id="whitelist-category-input" placeholder="Custom Category (Optional)" value="Whitelisted Item">
                     </div>
-                    <button id="add-whitelist-btn" class="add-btn">Add Rule</button>
+                     <input type="text" id="whitelist-category-input" placeholder="Custom Category (Optional)">
+                    <button id="add-whitelist-btn" class="add-btn"><i class="fa-solid fa-plus"></i> Add Rule</button>
                 </div>
                 <div class="whitelist-chips-container" id="whitelist-chips-container">
-                    <p class="empty-state" id="whitelist-empty-state">No whitelist rules added yet.</p>
+                    <p class="empty-state" id="whitelist-empty-state">No rules added yet.</p>
                 </div>
             </div>
         </div>
 
-        <!-- NEW: Full Item View Modal -->
+        <!-- Full Item View Modal -->
         <div id="full-item-modal" class="modal-overlay hidden">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 id="modal-title"></h3>
+                    <h3 id="modal-title">Item Title</h3>
                     <button id="modal-close-btn" class="modal-close-btn">×</button>
                 </div>
                 <div class="modal-body">
@@ -130,13 +122,11 @@
                     <div id="modal-full-content"></div>
                 </div>
                 <div id="modal-actions" class="modal-actions">
-                    <!-- Buttons like "Mark as Read", "Open in Gmail" will be inserted here by JS -->
+                    <!-- Buttons will be inserted here by JS -->
                 </div>
             </div>
         </div>
-
     </div>
-
     <script src="popup.js"></script>
 </body>
 </html>

@@ -5,9 +5,10 @@ const { google } = require('googleapis');
 const path = require('path');
 const User = require('../models/User');
 
-const GOOGLE_CLIENT_ID = "";
-const GOOGLE_CLIENT_SECRET = "";
-const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/api/auth/google";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+
+const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || "https://chrome-hb9p.onrender.com/";
 
 const SCOPES = [
     'https://www.googleapis.com/auth/userinfo.email',

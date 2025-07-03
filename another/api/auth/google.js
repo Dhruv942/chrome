@@ -5,9 +5,10 @@ const { google } = require('googleapis');
 const path = require('path');
 const User = require('../models/User');
 
-const GOOGLE_CLIENT_ID = "";
-const GOOGLE_CLIENT_SECRET = "";
-const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/api/auth/google";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+
+const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || "https://chrome-hb9p.onrender.com/";
 
 const SCOPES = [
     'https://www.googleapis.com/auth/userinfo.email',
@@ -154,12 +155,14 @@ router.get('/', async (req, res) => {
         });
         
         // Set cookie
-        res.cookie('user_id', user._id, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
-        });
+ res.cookie('user_id', user._id, {
+    httpOnly: true,
+    // On Render, NODE_ENV is 'production', so this will correctly be `true`
+    secure: process.env.NODE_ENV === 'production', 
+    // This is the critical change that allows the cookie to be sent from the extension
+    sameSite: 'none', 
+    maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
+});
 
         // Send success response
         const successHtml = `

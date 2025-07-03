@@ -8,9 +8,9 @@ const axios = require('axios');
 const User = require('../models/User'); // Correct path to your User model
 
 // GitHub OAuth configuration (LOAD FROM .ENV)
-const GITHUB_CLIENT_ID = ""
-const GITHUB_CLIENT_SECRET = ""
-const GITHUB_REDIRECT_URI = ""
+const GITHUB_CLIENT_ID = "process.env.GITHUB_CLIENT_ID"
+const GITHUB_CLIENT_SECRET = "process.env.GITHUB_CLIENT_SECRET"
+const GITHUB_REDIRECT_URI = "https://chrome.onrender.com/api/auth/github/callback"
 
 
 // --- Step 1: Redirect to GitHub for Authorization ---
