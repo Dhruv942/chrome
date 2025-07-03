@@ -1,4 +1,4 @@
-// server.js
+
 require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -68,7 +68,7 @@ app.use(cookieParser()); // To parse cookies
 // --- API Routes ---
 // Auth routes do not need the refresh token middleware
 app.use('/api/auth/google', googleAuthRoutes);
-app.use('/api/auth', githubAuthRoutes);
+app.use('/api/auth/github', githubAuthRoutes);
 
 // Tab routes are protected and need a valid token
 app.use('/api/tab/gmail', refreshTokenMiddleware, gmailTabRoutes);
