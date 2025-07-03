@@ -7,6 +7,7 @@ const AUTH_API_URL = 'https://chrome-hb9p.onrender.com/api/auth'; // Base URL fo
 // --- UI Elements (Global Declarations - assigned in initializeExtension) ---
 let loadingSpinner;
 let errorMessageDiv;
+let statusMessageDiv; // NEW: Status message div
 
 // Login UI elements
 let loginContainer;
@@ -65,18 +66,20 @@ const Importance = {
     Default: 'Default'
 };
 
-// Define PLATFORM_ICONS
+// Define PLATFORM_ICONS (Icons from FontAwesome are preferred if available)
 const PLATFORM_ICONS = {
-    Gmail: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4H2C.9 4 0 4.9 0 6v12c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H2V8l10 6 10-6v10zM12 11L2 5h20l-10 6z"/></svg>`,
-    LinkedIn: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.768s.784-1.768 1.75-1.768 1.75.79 1.75 1.768-.783 1.768-1.75 1.768zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>`,
-    GitHub: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.082 1.838 1.235 1.838 1.235 1.07 1.835 2.809 1.305 3.493.998.108-.776.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>`,
-    Calendar: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm-5-5h-2v2h2v-2zm0-4h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>`,
-    JobPortal: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 16.5l6-6-6-6v12z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg>`,
-    SocialMedia: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>`,
-    Newsletter: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 6h16v2H4V6zm0 12V10h16v8H4zm4-5h4v-2H8v2zm5 0h4v-2h-4v2z"/></svg>`,
-    Error: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`,
-    Unknown: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 20V4h16l.01 16H4zm9-5h2v2h-2zm0-4h2v2h-2zm0-4h2v2h-2z"/></svg>`
+    Gmail: `<i class="fa-solid fa-envelope"></i>`,
+    LinkedIn: `<i class="fa-brands fa-linkedin"></i>`,
+    GitHub: `<i class="fa-brands fa-github"></i>`,
+    Calendar: `<i class="fa-solid fa-calendar-days"></i>`,
+    // Fallback or generic icons for other categories not directly represented by FontAwesome tabs
+    JobPortal: `<i class="fa-solid fa-briefcase"></i>`, // Example: Using briefcase for job portal
+    SocialMedia: `<i class="fa-solid fa-share-nodes"></i>`, // Example: Using share nodes for social media
+    Newsletter: `<i class="fa-solid fa-newspaper"></i>`, // Example: Using newspaper for newsletter
+    Error: `<i class="fa-solid fa-exclamation-circle"></i>`,
+    Unknown: `<i class="fa-solid fa-question-circle"></i>`
 };
+
 
 // --- UI Visibility Functions ---
 function showLoginUI() {
@@ -89,7 +92,8 @@ function showDashboardUI() {
     if (dashboardContainer) dashboardContainer.classList.remove('hidden');
 }
 
-function showLoading(isModal = false) {
+// Function to show global loading spinner and message
+function showLoading(isModal = false, message = "") {
     if (isModal) {
         if (modalLoadingSpinner) modalLoadingSpinner.classList.remove('hidden');
         if (modalErrorMessageDiv) {
@@ -98,6 +102,10 @@ function showLoading(isModal = false) {
         }
     } else {
         if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+        if (statusMessageDiv && message) { // Only show status message if provided
+            statusMessageDiv.textContent = message;
+            statusMessageDiv.classList.remove('hidden');
+        }
         if (errorMessageDiv) {
             errorMessageDiv.classList.remove('visible');
             errorMessageDiv.textContent = '';
@@ -105,15 +113,23 @@ function showLoading(isModal = false) {
     }
 }
 
+// Function to hide global loading spinner and message
 function hideLoading(isModal = false) {
     if (isModal) {
         if (modalLoadingSpinner) modalLoadingSpinner.classList.add('hidden');
     } else {
         if (loadingSpinner) loadingSpinner.classList.add('hidden');
+        if (statusMessageDiv) {
+            statusMessageDiv.classList.add('hidden');
+            statusMessageDiv.textContent = ''; // Clear message
+        }
     }
 }
 
 function showErrorMessage(message, isModal = false) {
+    // Ensure loading spinner and status message are hidden if an error pops up
+    hideLoading(isModal); 
+
     if (isModal) {
         if (modalErrorMessageDiv) {
             modalErrorMessageDiv.textContent = message;
@@ -142,7 +158,7 @@ function clearErrorMessage(isModal = false) {
 }
 
 async function fetchData(endpoint, options = {}) {
-    showLoading(options.isModal);
+    showLoading(options.isModal, options.statusMessage); // Pass status message for global loading
     clearErrorMessage(options.isModal);
     try {
         const response = await fetch(`${BASE_API_URL}${endpoint}`, {
@@ -183,65 +199,63 @@ async function fetchData(endpoint, options = {}) {
 // Helper to determine importance styles
 const getImportanceStyles = (item) => {
     let importanceLevel = Importance.Default;
-    let badgeBgColor = 'badge-default';
-    let textColor = 'text-gray-500';
+    let badgeBgColor = 'badge-default'; // Default badge for custom categories or AI failed
     let label = '';
 
+    // Determine importance based on flags/category
     if (item.category && item.category.toLowerCase().includes('critical')) {
         importanceLevel = Importance.Critical;
+        label = 'Critical';
     } else if (item.isUrgent) {
         importanceLevel = Importance.Urgent;
+        label = 'Urgent';
     } else if (item.isImportant) {
         importanceLevel = Importance.High;
+        label = 'High';
     }
 
+    // Assign badge color based on determined importance level
     switch (importanceLevel) {
         case Importance.Critical:
             badgeBgColor = 'badge-critical';
-            textColor = 'text-white';
-            label = 'Critical';
             break;
         case Importance.Urgent:
             badgeBgColor = 'badge-urgent';
-            textColor = 'text-white';
-            label = 'Urgent';
             break;
         case Importance.High:
             badgeBgColor = 'badge-high';
-            textColor = 'text-accent-high-text';
-            label = 'High';
             break;
-        case Importance.Default:
+        default:
+            // Handle specific categories that aren't critical/urgent/high by default flags
             if (item.category === 'Whitelisted Item') {
                 badgeBgColor = 'priority-whitelisted';
-                textColor = 'text-white';
-                label = 'Whitelisted';
+                label = 'Whitelisted'; // Explicitly set label for whitelisted
             } else if (item.category === 'AI Analysis Failed') {
-                badgeBgColor = 'badge-default';
-                textColor = 'text-white';
+                badgeBgColor = 'badge-default'; // Or a specific error badge color
                 label = 'AI Error';
             } else if (item.category) {
-                badgeBgColor = 'badge-default';
-                textColor = 'text-white';
+                badgeBgColor = 'badge-default'; // Use default badge for other custom categories
                 label = item.category;
             } else {
-                badgeBgColor = 'badge-default';
-                textColor = 'text-gray-500';
+                // If no specific category or importance, no label or default badge
                 label = '';
+                badgeBgColor = ''; // No badge if no label
             }
             break;
     }
-    return { importanceLevel, badgeBgColor, textColor, label };
+
+    return { importanceLevel, badgeBgColor, label };
 };
 
-// --- renderItems function (Fixed with proper item ID handling) ---
+
+// --- renderItems function (Fixed with proper item ID handling and whitelist sidebar color) ---
 function renderItems(items, containerId) {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error(`Error: Container with ID '${containerId}' not found for rendering items.`);
         return;
     }
-    container.innerHTML = '';
+    container.innerHTML = ''; // Clear previous items
 
     if (!items || items.length === 0) {
         container.innerHTML = `<p class="empty-state">No ${containerId.replace('-list', '').replace('-', ' ')} found.</p>`;
@@ -251,16 +265,37 @@ function renderItems(items, containerId) {
     const getPlatformIcon = (platform) => PLATFORM_ICONS[platform] || PLATFORM_ICONS['Unknown'];
 
     items.forEach(item => {
-        const { importanceLevel, badgeBgColor, textColor, label } = getImportanceStyles(item);
-        const showImportanceUI = importanceLevel !== Importance.Default || item.category === 'Whitelisted Item' || item.category === 'AI Analysis Failed';
+        const { importanceLevel, badgeBgColor, label } = getImportanceStyles(item);
+        
+        let sideBarColorClass = 'bg-gray-300'; // Default for items with no specific importance
+        if (importanceLevel === Importance.Critical) {
+            sideBarColorClass = 'bg-accent-critical';
+        } else if (importanceLevel === Importance.Urgent) {
+            sideBarColorClass = 'bg-accent-urgent';
+        } else if (importanceLevel === Importance.High) {
+            sideBarColorClass = 'bg-accent-high';
+        } else if (item.category === 'Whitelisted Item') { // NEW: Whitelisted specific sidebar color
+            sideBarColorClass = 'bg-accent-whitelisted';
+        }
 
-        const sideBarColorClass = importanceLevel === Importance.Critical ? 'bg-accent-critical' : (importanceLevel === Importance.Urgent ? 'bg-accent-urgent' : (importanceLevel === Importance.High ? 'bg-accent-high' : 'bg-gray-300'));
+        // Only show importance UI elements if there's a specific importance level or a custom category/whitelisted status
+        const showImportanceUI = importanceLevel !== Importance.Default || item.category === 'Whitelisted Item' || item.category === 'AI Analysis Failed' || (item.category && item.category !== 'Default');
+
+        // Determine sender/actor name for display
+        let senderInfoHtml = '';
+        if (item.source === 'Gmail' && item.from) {
+            senderInfoHtml = `<span class="item-sender-name">${item.from}</span>`;
+        } else if (item.source === 'GitHub' && item.actor) { // Assuming GitHub items have an 'actor' field
+            senderInfoHtml = `<span class="item-sender-name">${item.actor}</span>`;
+        }
+        // Add other platforms if they have a 'sender' or 'author' field, e.g.:
+        // else if (item.source === 'LinkedIn' && item.author) {
+        //     senderInfoHtml = `<span class="item-sender-name">${item.author}</span>`;
+        // }
+
 
         const itemCard = document.createElement('div');
         itemCard.classList.add('item-card');
-        if (showImportanceUI) {
-            itemCard.classList.add('has-sidebar');
-        }
         itemCard.setAttribute('role', 'article');
         itemCard.setAttribute('aria-labelledby', `notification-title-${item.id}`);
         itemCard.setAttribute('aria-describedby', `notification-status-${item.id}`);
@@ -275,7 +310,8 @@ function renderItems(items, containerId) {
                     <div class="item-platform-info">
                         <span class="item-platform-icon" aria-hidden="true">${getPlatformIcon(item.source)}</span>
                         <span class="item-platform-name">${item.source}</span>
-                        ${(label && showImportanceUI) ? `<span class="importance-badge ${badgeBgColor} ${badgeBgColor === 'badge-high' ? 'text-accent-high-text' : 'text-white'}">${label}</span>` : ''}
+                        ${senderInfoHtml}
+                        ${(label && showImportanceUI) ? `<span class="importance-badge ${badgeBgColor}">${label}</span>` : ''}
                     </div>
                     <div class="item-card-actions">
                         <button
@@ -440,11 +476,11 @@ async function markEmailAsReadAndReloadGmail(messageId) {
     if (success) {
         const gmailListContainer = document.getElementById('gmail-list');
         if (gmailListContainer) {
-            // FIXED: Find the item card by data attribute
+            // Find the item card by data attribute
             const itemElement = gmailListContainer.querySelector(`[data-item-id="${messageId}"]`);
             if (itemElement) {
                 itemElement.remove();
-                // Check if list is now empty and update empty state
+                // Check if list is now empty and new empty state
                 if (gmailListContainer.children.length === 0) {
                     gmailListContainer.innerHTML = '<p class="empty-state">No Gmail found.</p>';
                 }
@@ -476,9 +512,11 @@ async function loadRecommendations() {
 async function loadGmail() {
     const data = await fetchData('/gmail');
     if (data && data.status !== 'not_logged_in') {
-        const gmailItems = data.map(item => ({ ...item, isUnread: true }));
+        const gmailItems = data.map(item => ({ ...item, isUnread: true })); // Assume all fetched are unread initially
         renderItems(gmailItems, 'gmail-list');
         loadedTabs.gmail = true;
+    } else if (data && data.status === 'not_logged_in') {
+        showLoginUI();
     }
 }
 
@@ -487,6 +525,8 @@ async function loadLinkedIn() {
     if (data && data.status !== 'not_logged_in') {
         renderItems(data, 'linkedin-list');
         loadedTabs.linkedin = true;
+    } else if (data && data.status === 'not_logged_in') {
+        showLoginUI();
     }
 }
 
@@ -535,40 +575,50 @@ async function loadCalendar() {
     if (data && data.status !== 'not_logged_in') {
         renderItems(data, 'calendar-list');
         loadedTabs.calendar = true;
+    } else if (data && data.status === 'not_logged_in') {
+        showLoginUI();
     }
 }
 
 // --- Tab Switching Logic ---
 function switchTab(tabId) {
+    // Deactivate current tabs
     document.querySelectorAll('.tab-item').forEach(item => {
         item.classList.remove('active');
-        if (item.dataset.tab === tabId) {
-            item.classList.add('active');
-        }
+    });
+    tabContents.forEach(content => {
+        content.classList.remove('active', 'visible-opacity'); // Remove active and fade-in class from previous
     });
 
-    tabContents.forEach(content => {
-        content.classList.remove('active');
-        if (content.id === `${tabId}-content`) {
-            content.classList.add('active');
-        }
-    });
+    // Activate new tab
+    const newTabItem = document.querySelector(`.tab-item[data-tab="${tabId}"]`);
+    const newTabContent = document.getElementById(`${tabId}-content`);
+
+    if (newTabItem) newTabItem.classList.add('active');
+    if (newTabContent) {
+        newTabContent.classList.add('active'); // Set display to flex
+        // Force reflow to ensure display property is applied before transition
+        void newTabContent.offsetWidth; // This is a common trick to force a reflow
+        newTabContent.classList.add('visible-opacity'); // Set opacity to 1 to trigger fade-in
+    }
 
     currentActiveTab = tabId;
     clearErrorMessage();
 
-    // Force reload for Gmail or if tab not loaded yet
-    if (tabId === 'gmail' && !loadedTabs.gmail) { // Always reload Gmail to get latest unread status
-        loadGmail();
-    } else if (tabId === 'github' && !loadedTabs.github) { // Load GitHub if not yet loaded
-        loadGitHub();
-    } else if (!loadedTabs[tabId]) { // For other tabs, load if not already loaded
+    // Load data for the selected tab if not already loaded (or always for Gmail)
+    if (!loadedTabs[tabId] || tabId === 'gmail') {
         switch (tabId) {
             case 'recommendations':
                 loadRecommendations();
                 break;
+            case 'gmail':
+                loadGmail();
+                break;
             case 'linkedin':
                 loadLinkedIn();
+                break;
+            case 'github':
+                loadGitHub();
                 break;
             case 'calendar':
                 loadCalendar();
@@ -579,7 +629,7 @@ function switchTab(tabId) {
 
 // --- Whitelist Management Logic ---
 async function fetchWhitelistRules() {
-    showLoading();
+    showLoading(false, "Loading whitelist rules..."); // Global loading message
     clearErrorMessage();
     try {
         const response = await fetch(`${BASE_API_URL}/recommendations/manage-whitelist`, {
@@ -613,10 +663,11 @@ function renderWhitelistChips() {
             chip.classList.add('whitelist-chip');
             chip.dataset.ruleId = rule._id;
 
-            const ruleText = `${rule.source}: ${rule.type} "${rule.value}"` +
-                             (rule.isUrgent ? ' (Urgent)' : '') +
-                             (rule.isImportant ? ' (Important)' : '') +
-                             (rule.category !== 'Whitelisted Item' && rule.category ?  ` [${rule.category}]` : '');
+            const urgencyLabel = (rule.isUrgent ? ' (Urgent)' : '');
+            const importanceLabel = (rule.isImportant ? ' (Important)' : '');
+            const categoryLabel = (rule.category && rule.category !== 'Whitelisted Item' ? ` [${rule.category}]` : '');
+
+            const ruleText = `${rule.source}: ${rule.type} "${rule.value}"${urgencyLabel}${importanceLabel}${categoryLabel}`;
             chip.textContent = ruleText;
 
             const removeBtn = document.createElement('button');
@@ -643,14 +694,14 @@ async function addWhitelistRule() {
     const value = whitelistValueInput.value.trim();
     const isUrgent = whitelistUrgentCheckbox.checked;
     const isImportant = whitelistImportantCheckbox.checked;
-    const category = whitelistCategoryInput.value.trim() || 'Whitelisted Item';
+    const category = whitelistCategoryInput.value.trim() || 'Whitelisted Item'; // Default to 'Whitelisted Item'
 
     if (!source || !type || !value) {
         showErrorMessage('Please select source, type, and enter a value for the rule.');
         return;
     }
 
-    showLoading();
+    showLoading(false, "Adding whitelist rule..."); // Global loading message
     clearErrorMessage();
     try {
         const response = await fetch(`${BASE_API_URL}/recommendations/manage-whitelist`, {
@@ -670,14 +721,15 @@ async function addWhitelistRule() {
         const result = await response.json();
         console.log('Rule added/updated:', result);
 
-        await fetchWhitelistRules();
+        await fetchWhitelistRules(); // Refresh chips
+        // Clear input fields
         whitelistSourceSelect.value = '';
         whitelistTypeSelect.value = '';
         whitelistValueInput.value = '';
         whitelistUrgentCheckbox.checked = false;
         whitelistImportantCheckbox.checked = false;
-        whitelistCategoryInput.value = 'Whitelisted Item';
-        whitelistTypeSelect.disabled = true;
+        whitelistCategoryInput.value = ''; // Clear custom category input
+        whitelistTypeSelect.disabled = true; // Disable type dropdown until source is selected again
     } catch (error) {
         console.error('Error adding whitelist rule:', error);
         showErrorMessage(`Failed to add/update rule: ${error.message}`);
@@ -691,7 +743,7 @@ async function removeWhitelistRule(ruleId) {
         return;
     }
 
-    showLoading();
+    showLoading(false, "Removing whitelist rule..."); // Global loading message
     clearErrorMessage();
     try {
         const response = await fetch(`${BASE_API_URL}/recommendations/manage-whitelist/${ruleId}`, {
@@ -707,7 +759,7 @@ async function removeWhitelistRule(ruleId) {
         const result = await response.json();
         console.log('Rule deleted:', result);
 
-        await fetchWhitelistRules();
+        await fetchWhitelistRules(); // Refresh chips
     } catch (error) {
         console.error('Error removing whitelist rule:', error);
         showErrorMessage(`Failed to remove rule: ${error.message}`);
@@ -736,9 +788,15 @@ function updateWhitelistTypesDropdown() {
 
 // --- Initial Login Check and Dashboard Initialization ---
 async function checkLoginStatus() {
-    showLoading();
-    // Fetch recommendations to check if user is logged into the overall dashboard
-    const response = await fetchData('/recommendations');
+    // Hide UI elements and show central loading message during initial check
+    if (loginContainer) loginContainer.classList.add('hidden');
+    if (dashboardContainer) dashboardContainer.classList.add('hidden');
+    showLoading(false, "Verifying your session. Please wait..."); // Global loading message
+
+    const response = await fetchData('/recommendations', { statusMessage: "Fetching recommendations..." });
+
+    // Hide global loading message and spinner now that we have a response
+    hideLoading();
 
     if (response && response.status === 'not_logged_in') {
         showLoginUI();
@@ -746,32 +804,46 @@ async function checkLoginStatus() {
     } else if (response) {
         showDashboardUI();
         attachDashboardEventListeners();
-        // Initial load for recommendations once dashboard is visible
+        
+        // Render initial recommendations data (this is the default tab)
         renderItems(response, 'recommendations-list');
-        loadedTabs.recommendations = true;
+        loadedTabs.recommendations = true; // Mark as loaded
+
+        // Manually activate the recommendations tab visuals and trigger fade-in
+        const initialTabItem = document.querySelector('.tab-item[data-tab="recommendations"]');
+        const initialTabContent = document.getElementById('recommendations-content');
+        if (initialTabItem) {
+            initialTabItem.classList.add('active');
+        }
+        if (initialTabContent) {
+            initialTabContent.classList.add('active');
+            // Force reflow before applying opacity to trigger CSS transition
+            void initialTabContent.offsetWidth; 
+            initialTabContent.classList.add('visible-opacity');
+        }
+        currentActiveTab = 'recommendations'; // Set the global active tab variable
+
     } else {
         // Fallback if fetchData returns null (e.g., API unreachable)
         showLoginUI();
         showErrorMessage("Could not connect to dashboard services. Please ensure the backend is running.");
     }
-    hideLoading();
 }
 
 // --- Function to assign UI elements after DOM is loaded ---
 function assignUIElements() {
     loadingSpinner = document.getElementById('loading-spinner');
     errorMessageDiv = document.getElementById('error-message');
+    statusMessageDiv = document.getElementById('status-message'); // NEW: Get reference to status message div
 
     loginContainer = document.getElementById('login-container');
     googleLoginBtn = document.getElementById('google-login-btn');
-    // GitHub login button is now inside the tab, so its ID is different
-    githubLoginBtn = document.getElementById('github-login-btn-tab');
+    githubLoginBtn = document.getElementById('github-login-btn-tab'); // The GitHub login button inside the tab
 
     dashboardContainer = document.getElementById('dashboard-container');
     tabsNav = document.querySelector('.tabs-nav');
-    tabContents = document.querySelectorAll('.tab-content'); // NodeList
+    tabContents = document.querySelectorAll('.tab-content'); // NodeList of all tab content divs
 
-    // New: GitHub specific elements
     githubAuthPrompt = document.getElementById('github-auth-prompt');
 
     manageWhitelistBtn = document.getElementById('manage-whitelist-btn');
@@ -798,16 +870,18 @@ function assignUIElements() {
 
 
 function attachDashboardEventListeners() {
-    // Check if elements are not null before attaching listeners
+    // Event listener for tab navigation
     if (tabsNav) {
         tabsNav.addEventListener('click', (event) => {
-            if (event.target.classList.contains('tab-item')) {
-                const tabId = event.target.dataset.tab;
+            const targetTabItem = event.target.closest('.tab-item');
+            if (targetTabItem) {
+                const tabId = targetTabItem.dataset.tab;
                 switchTab(tabId);
             }
         });
     }
 
+    // Event listeners for Whitelist sidebar
     if (manageWhitelistBtn) {
         manageWhitelistBtn.addEventListener('click', () => {
             if (whitelistSidebar) whitelistSidebar.classList.add('open');
@@ -820,20 +894,20 @@ function attachDashboardEventListeners() {
             clearErrorMessage();
         });
     }
-
     if (whitelistSourceSelect) {
         whitelistSourceSelect.addEventListener('change', updateWhitelistTypesDropdown);
     }
     if (addWhitelistBtn) {
         addWhitelistBtn.addEventListener('click', addWhitelistRule);
     }
-    // Attach modal close listener here too, now that modalCloseBtn is assigned
+
+    // Event listener for Full Item Modal close button
     if (modalCloseBtn) {
         modalCloseBtn.addEventListener('click', closeFullItemModal);
     }
 
-    // Attach GitHub login listener (now only when dashboard is visible and button exists)
-    if (githubLoginBtn) { // This now refers to the button INSIDE the tab
+    // Event listener for GitHub login button within the GitHub tab
+    if (githubLoginBtn) {
         githubLoginBtn.addEventListener('click', () => {
             chrome.tabs.create({ url: `${AUTH_API_URL}/github` });
             // Update the hint in the GitHub tab's auth prompt
