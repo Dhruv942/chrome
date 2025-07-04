@@ -1,8 +1,8 @@
-// server.js
 require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./api/utils/mongo');
 
 const refreshTokenMiddleware = require('./api/middlewares/refreshTokenMiddleware');
@@ -20,63 +20,53 @@ const recommendationsTabRoutes = require('./api/tabs/recommendations');
 const app = express();
 connectDB();
 
-// --- START: CORS CONFIGURATION (with your ID hardcoded) ---
-
-// This list defines which websites are allowed to make requests to your server.
-const whitelist = [
-  'chrome-extension://oigfiggbhldboidhbaggmfcnpkikpgmp', // Your specific Chrome Extension ID is added here.
-  'http://localhost:3000' // Kept for local testing if needed.
-];
-
-console.log('CORS Whitelist:', whitelist); // This will show in your server logs
-const path = require('path');
+// --- Public Pages ---
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Public pages for OAuth Consent Screen
 app.get('/privacy', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/privacy-policy.html'));
 });
-
 app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/home.html'));
 });
 
+// --- CORS Configuration ---
 const corsOptions = {
   origin: function (origin, callback) {
-    // The `!origin` check allows tools like Postman to work.
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true); // Allow the request
-    } else {
-      console.error(`CORS ERROR: Request from origin "${origin}" was blocked.`);
-      callback(new Error('This origin is not allowed by CORS')); // Block the request
-    }
-  },
-  credentials: true, // This is essential for sending cookies (for login sessions).
-};
+    if (!origin) return callback(null, true); // Allow tools like Postman
 
-// Use the CORS middleware with our options.
+    // ✅ Allow any Chrome extension temporarily
+    if (origin.startsWith('chrome-extension://')) {
+      return callback(null, true);
+    }
+
+    // ✅ Allow local development
+    if (origin === 'http://localhost:3000') {
+      return callback(null, true);
+    }
+
+    // ❌ Block everything else
+    console.error(`❌ CORS BLOCKED: ${origin}`);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+};
 app.use(cors(corsOptions));
 
-// --- END: CORS CONFIGURATION ---
-
-
 // --- Standard Middleware ---
-app.use(express.json()); // To parse JSON bodies
-app.use(cookieParser()); // To parse cookies
-
+app.use(express.json());
+app.use(cookieParser());
 
 // --- API Routes ---
-// Auth routes do not need the refresh token middleware
+// Auth routes
 app.use('/api/auth/google', googleAuthRoutes);
-app.use('/api/auth', githubAuthRoutes);
+app.use('/api/auth/github', githubAuthRoutes);
 
-// Tab routes are protected and need a valid token
+// Tab routes (with refresh token middleware where needed)
 app.use('/api/tab/gmail', refreshTokenMiddleware, gmailTabRoutes);
 app.use('/api/tab/linkedin', refreshTokenMiddleware, linkedinTabRoutes);
 app.use('/api/tab/github', githubTabRoutes);
 app.use('/api/tab/calendar', refreshTokenMiddleware, calendarTabRoutes);
 app.use('/api/tab/recommendations', refreshTokenMiddleware, recommendationsTabRoutes);
-
 
 // --- Server Startup ---
 const PORT = process.env.PORT || 3001;

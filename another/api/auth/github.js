@@ -1,6 +1,3 @@
-
-
-
 // api/auth/github.js
 const express = require('express');
 const router = express.Router();
@@ -8,22 +5,31 @@ const axios = require('axios');
 const User = require('../models/User'); // Correct path to your User model
 
 // GitHub OAuth configuration (LOAD FROM .ENV)
-const GITHUB_CLIENT_ID = "process.env.GITHUB_CLIENT_ID"
-const GITHUB_CLIENT_SECRET = "process.env.GITHUB_CLIENT_SECRET"
-const GITHUB_REDIRECT_URI = "https://chrome.onrender.com/api/auth/github/callback"
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID; // Fixed: removed quotes
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET; // Fixed: removed quotes
+const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI || "https://chrome-hb9p.onrender.com/api/auth/github/callback";
 
+console.log('GitHub Client ID:', GITHUB_CLIENT_ID ? 'Set' : 'Not set');
+console.log('GitHub Client Secret:', GITHUB_CLIENT_SECRET ? 'Set' : 'Not set');
+console.log('GitHub Redirect URI:', GITHUB_REDIRECT_URI);
+
+// Test route to verify router is working
+router.get('/test', (req, res) => {
+    res.json({ message: 'GitHub router is working!' });
+});
 
 // --- Step 1: Redirect to GitHub for Authorization ---
-router.get('/github', (req, res) => {
+router.get('/', (req, res) => {
+    console.log('GitHub auth route hit'); // Debug log
     // Optionally, you can store the current user_id from cookie in state parameter
     // if you need to reliably link back to an existing session after redirect.
     // For simplicity here, we'll just rely on the cookie persisting.
-    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${GITHUB_REDIRECT_URI}&scope=repo%20notifications%20read:user%20user:email`;
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}&scope=repo%20notifications%20read:user%20user:email`;
     res.redirect(githubAuthUrl);
 });
 
 // --- Step 2: GitHub Callback after User Authorization ---
-router.get('/github/callback', async (req, res) => {
+router.get('/callback', async (req, res) => {
     const { code } = req.query;
     const userIdFromCookie = req.cookies.user_id; // Check for existing user ID from cookie
 
