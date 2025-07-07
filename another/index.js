@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/privacy', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/privacy-policy.html'));
 });
-app.get('/home', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/home.html'));
 });
 

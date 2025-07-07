@@ -15,7 +15,8 @@
   
   },
 "content_security_policy": {
-  "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://chrome-hb9p.onrender.com"
+  "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://chrome-hb9p.onrender.com https://gonotifai.com"
 }
+
 
 }
