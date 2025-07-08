@@ -66,14 +66,15 @@ app.use((req, res, next) => {
 });
 
 // --- Rate Limiting Middleware (Optional but recommended) ---
-const rateLimit = require('express-rate-limit');
-const githubRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs for GitHub routes
-  message: 'Too many GitHub API requests, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// To enable rate limiting, install: npm install express-rate-limit
+// const rateLimit = require('express-rate-limit');
+// const githubRateLimit = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // Limit each IP to 100 requests per windowMs for GitHub routes
+//   message: 'Too many GitHub API requests, please try again later.',
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
 
 // --- API Routes ---
 // Auth routes
@@ -83,7 +84,7 @@ app.use('/api/auth/github', githubAuthRoutes);
 // Tab routes (with refresh token middleware where needed)
 app.use('/api/tab/gmail', refreshTokenMiddleware, gmailTabRoutes);
 app.use('/api/tab/linkedin', refreshTokenMiddleware, linkedinTabRoutes);
-app.use('/api/tab/github', githubRateLimit, githubTabRoutes); // Added rate limiting for GitHub
+app.use('/api/tab/github', githubTabRoutes); // Rate limiting can be added later if needed
 app.use('/api/tab/calendar', refreshTokenMiddleware, calendarTabRoutes);
 app.use('/api/tab/recommendations', refreshTokenMiddleware, recommendationsTabRoutes);
 
