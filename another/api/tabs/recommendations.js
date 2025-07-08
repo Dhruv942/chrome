@@ -36,6 +36,7 @@ function applyWhitelistRulesToItem(item, rules) {
     let shouldKeep = false; 
     let isFilteredOutByRule = false; 
 
+    // An item is considered "kept" initially if AI analysis already marked it important/urgent
     if (item.isImportant || item.isUrgent) {
         shouldKeep = true;
     }
@@ -77,13 +78,16 @@ function applyWhitelistRulesToItem(item, rules) {
         }
 
         if (ruleMatched) {
+            // Apply rule's urgency/importance/category to the item
             item.isUrgent = item.isUrgent || rule.isUrgent;
             item.isImportant = item.isImportant || rule.isImportant;
             item.category = rule.category; 
 
+            // If the rule explicitly marks it as spam/promotion AND not urgent/important, filter it out
             if (!rule.isUrgent && !rule.isImportant && (rule.category.toLowerCase().includes('spam') || rule.category.toLowerCase().includes('promotion'))) {
                  isFilteredOutByRule = true; 
             } else {
+                 // Otherwise, this item should at least be considered for keeping
                  shouldKeep = true; 
             }
         }
@@ -139,7 +143,7 @@ async function fetchAndProcessEmails(oauth2Client, whitelistRules) {
                 // Convert Gmail internal date to proper timestamp
                 const emailTimestamp = new Date(parseInt(msg.data.internalDate));
                 
-                // Double-check if email is within last 2 days
+                // Double-check if email is within last 2 days (can happen if Gmail's `after` filter is coarse)
                 if (!isWithinLast2Days(emailTimestamp)) {
                     return null; // Skip emails older than 2 days
                 }
@@ -154,6 +158,7 @@ async function fetchAndProcessEmails(oauth2Client, whitelistRules) {
                     type: 'Gmail' 
                 };
 
+                // Analyze email with Gemini (this populates isUrgent, isImportant, category, summary)
                 let analysis = await analyzeEmail(basicEmailInfo); 
 
                 const emailItem = {
@@ -163,12 +168,14 @@ async function fetchAndProcessEmails(oauth2Client, whitelistRules) {
                     title: analysis.summary || basicEmailInfo.subject || '(No Subject)', 
                 };
                 
-                const { shouldKeep, isFilteredOutByRule } = applyWhitelistRulesToItem(emailItem, whitelistRules);
+                // Apply whitelist rules and determine if explicitly filtered out
+                const { isFilteredOutByRule } = applyWhitelistRulesToItem(emailItem, whitelistRules);
 
                 if (isFilteredOutByRule) {
-                    return null; 
+                    return null; // Explicitly filtered out by a negative whitelist rule
                 }
                 
+                // IMPORTANT: Only return the email if it's marked as Urgent or Important (by AI or whitelist rule)
                 return (emailItem.isUrgent || emailItem.isImportant) ? emailItem : null;
 
             } catch (emailErr) {
@@ -185,7 +192,7 @@ async function fetchAndProcessEmails(oauth2Client, whitelistRules) {
             }
         });
 
-        return (await Promise.all(emailPromises)).filter(Boolean);
+        return (await Promise.all(emailPromises)).filter(Boolean); // Filter out nulls
     } catch (error) {
         console.error('Error fetching Gmail messages for recommendations:', error.message);
         return [];
@@ -225,11 +232,14 @@ async function fetchGithubNotifications(user, whitelistRules) {
                     source: 'GitHub',
                     summary: `Repo: ${n.repository.full_name} (${n.subject.type}). Reason: ${n.reason}`,
                     isUrgent: false, 
-                    isImportant: true, 
+                    isImportant: false, // Default to false, can be overridden by whitelist
                     timestamp: n.updated_at,
+                    actor: n.actor?.login || 'GitHub' // Add actor for display
                 };
-                const { shouldKeep, isFilteredOutByRule } = applyWhitelistRulesToItem(githubItem, whitelistRules);
-                return isFilteredOutByRule ? null : (shouldKeep ? githubItem : null);
+                const { isFilteredOutByRule } = applyWhitelistRulesToItem(githubItem, whitelistRules);
+                if (isFilteredOutByRule) return null;
+                // IMPORTANT: Only return the item if it's marked as Urgent or Important (by whitelist rule)
+                return (githubItem.isUrgent || githubItem.isImportant) ? githubItem : null;
             })
             .filter(Boolean); 
     } catch (error) {
@@ -257,8 +267,8 @@ async function fetchCalendarEvents(oauth2Client, whitelistRules) {
     try {
         const eventsRes = await calendar.events.list({
             calendarId: 'primary',
-            timeMin: twoDaysAgo.toISOString(), // Changed from 'now' to 'twoDaysAgo'
-            timeMax: now.toISOString(), // Changed from 'nextWeek' to 'now'
+            timeMin: twoDaysAgo.toISOString(), // Events starting from 2 days ago
+            timeMax: now.toISOString(), // Up to now
             maxResults: 30, // Increased limit
             singleEvents: true,
             orderBy: 'startTime',
@@ -276,12 +286,14 @@ async function fetchCalendarEvents(oauth2Client, whitelistRules) {
                     title: event.summary || '(No Event Title)',
                     source: 'Calendar',
                     summary: `Event at ${eventStart.toLocaleString()}` + (event.location ? ` - ${event.location}` : ''),
-                    isUrgent: false, // Changed logic since we're looking at past events
-                    isImportant: true, 
+                    isUrgent: false, // Default to false
+                    isImportant: false, // Default to false, can be overridden by whitelist
                     timestamp: eventStart.toISOString(),
                 };
-                const { shouldKeep, isFilteredOutByRule } = applyWhitelistRulesToItem(calendarItem, whitelistRules);
-                return isFilteredOutByRule ? null : (shouldKeep ? calendarItem : null);
+                const { isFilteredOutByRule } = applyWhitelistRulesToItem(calendarItem, whitelistRules);
+                if (isFilteredOutByRule) return null;
+                // IMPORTANT: Only return the item if it's marked as Urgent or Important (by whitelist rule)
+                return (calendarItem.isUrgent || calendarItem.isImportant) ? calendarItem : null;
             })
             .filter(Boolean); 
     } catch (error) {
@@ -325,22 +337,26 @@ router.get('/', async (req, res) => {
 
         let allItems = [...emails, ...github, ...calendar];
         
-        // Final filter to ensure all items are within last 2 days
+        // Final filter to ensure all items are within last 2 days (redundant if fetch functions filter strictly, but good for robustness)
         allItems = allItems.filter(item => isWithinLast2Days(item.timestamp));
         
+        // Sort items: Urgent > Important > Most Recent
         allItems.sort((a, b) => {
+            // Primary sort: Urgent items first
             if (a.isUrgent && !b.isUrgent) return -1;
             if (!a.isUrgent && b.isUrgent) return 1;
 
+            // Secondary sort: Important items next (if not urgent)
             if (a.isImportant && !b.isImportant) return -1;
             if (!a.isImportant && b.isImportant) return 1;
 
+            // Tertiary sort: Most recent first (if neither urgent nor important differences)
             const dateA = new Date(a.timestamp);
             const dateB = new Date(b.timestamp);
 
             if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
-            if (isNaN(dateA.getTime())) return 1; 
-            if (isNaN(dateB.getTime())) return -1; 
+            if (isNaN(dateA.getTime())) return 1; // Put invalid dates at the end
+            if (isNaN(dateB.getTime())) return -1; // Put invalid dates at the end
             
             return dateB.getTime() - dateA.getTime(); // Most recent first
         });
