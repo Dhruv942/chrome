@@ -166,37 +166,179 @@ router.get('/', async (req, res) => {
 
         // Send success response
         const successHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Authentication Successful</title>
-            <style>
-                body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-                .success { color: #4CAF50; }
-                .warning { color: #ff9800; background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; }
-                .info { color: #2196F3; }
-                .user-info { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0; }
-            </style>
-        </head>
-        <body>
-            <h1 class="success">✅ Authentication Successful!</h1>
-            <div class="user-info">
-                <p><strong>Welcome:</strong> ${user.name}</p>
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p><strong>Login Count:</strong> ${user.loginCount}</p>
-                <p><strong>Refresh Token:</strong> ${user.refreshTokenSource}</p>
-            </div>
-            ${user.refreshTokenSource === 'none' ? 
-                '<div class="warning">⚠️ Warning: No refresh token available. You may need to re-authenticate more frequently.</div>' : 
-                '<p class="success">✅ Refresh token available - seamless experience enabled!</p>'
-            }
-            <script>
-                setTimeout(() => {
-                    window.close();
-                }, 5000);
-            </script>
-        </body>
-        </html>
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post Login - NotifAI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+    }
+
+    .check-icon {
+      width: 64px;
+      height: 64px;
+      color: #10b981;
+      margin-bottom: 1.5rem;
+    }
+
+    .title {
+      font-size: 1.875rem;
+      font-weight: bold;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+
+    .steps h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 1rem;
+    }
+
+    .steps ol {
+      list-style: decimal inside;
+      color: #6b7280;
+      padding-left: 0;
+    }
+
+    .steps li {
+      margin-bottom: 1.5rem;
+    }
+
+    .steps strong {
+      color: #111827;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .gif-box {
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      background-color: #f9fafb;
+      padding: 1rem;
+      overflow: hidden;
+      margin-top: 0.75rem;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .button {
+      margin-top: 2rem;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #3b82f6;
+      color: white;
+      font-size: 1.125rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #2563eb;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Check Icon -->
+    <svg class="check-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+
+    <h1 class="title">You're all set!</h1>
+    <p class="subtitle">You have successfully logged in. Let's get you started with NotifAI.</p>
+
+    <div class="steps">
+      <h2>How to Use the Extension</h2>
+      <ol>
+        <li>
+          <strong>Pin the Extension for Easy Access</strong>
+          <p>Click the puzzle icon (🧩) in your toolbar, then find NotifAI and click the pin icon.</p>
+          <div class="gif-box">
+            <svg viewBox="0 0 240 120" width="100%" height="auto">
+              <!-- Browser bar -->
+              <rect x="5" y="5" width="230" height="30" rx="4" fill="#E5E7EB" />
+              <circle cx="17" cy="20" r="4" fill="#F87171" />
+              <circle cx="29" cy="20" r="4" fill="#FBBF24" />
+              <circle cx="41" cy="20" r="4" fill="#34D399" />
+
+              <!-- Puzzle Icon -->
+              <g transform="translate(175 12)">
+                <path d="M14 7l-2.5 2.5a1 1 0 000 1.414L14 13.414V14a2 2 0 01-2 2h-1.586l-2.5 2.5a1 1 0 01-1.414 0L4 16v-1.586l-2.5-2.5a1 1 0 010-1.414L4 8V7a2 2 0 012-2h1.586l2.5-2.5a1 1 0 011.414 0L14 5v2z" fill="#4B5563"/>
+              </g>
+
+              <!-- Dropdown -->
+              <rect x="80" y="40" width="150" height="50" rx="4" fill="white" stroke="#D1D5DB" />
+              <text x="90" y="60" font-family="sans-serif" font-size="12" fill="#1F2937" font-weight="500">NotifAI</text>
+              <text x="90" y="75" font-family="sans-serif" font-size="10" fill="#6B7280">Your focus, amplified.</text>
+
+              <!-- Pin Icon -->
+              <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" fill="#3B82F6" transform="translate(168 58) scale(1.2)" />
+            </svg>
+          </div>
+        </li>
+        <li>
+          <strong>Open NotifAI to View Notifications</strong>
+          <p>Once pinned, click the NotifAI icon (🔔) in your toolbar at any time.</p>
+        </li>
+      </ol>
+    </div>
+
+    <button class="button" onclick="alert('Continue clicked!')">Start Using NotifAI</button>
+  </div>
+
+  <div class="footer">
+    &copy; <span id="year"></span> NotifAI. Your focus, amplified.
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
+
         `;
         
         res.send(successHtml);
