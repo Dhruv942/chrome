@@ -9,8 +9,8 @@
     --height: 600px; /* Increased height */
     
     /* Colors */
-    --bg-primary: #ffffff;
-    --bg-secondary: #f7f8fa;
+    --bg-primary: #ffffff; /* White for main containers like dashboard and login card */
+    --bg-secondary: #f8fafc; /* This is the new light background color for the entire popup */
     --bg-tertiary: #eff1f5;
     
     --text-primary: #1c1e21;
@@ -46,7 +46,7 @@ body {
     width: var(--width);
     height: var(--height);
     overflow: hidden;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-secondary); /* This makes the entire popup background #f8fafc */
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -59,69 +59,155 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: var(--bg-primary);
-    box-shadow: var(--shadow-md);
+    /* Allow the body's background to show through for the full-width effect */
+    background-color: transparent; 
+    box-shadow: none; /* No outer shadow on the wrapper itself */
     overflow: hidden; /* Ensures sidebar is clipped when off-screen */
     position: relative; /* Needed for absolute positioning of spinner/messages */
+    
+    /* Center the main content (login or dashboard) within the wrapper */
+    align-items: center;
+    justify-content: center;
 }
 
-/* --- AUTHENTICATION & PROMPTS --- */
-.auth-container, .auth-prompt {
+/* --- NEW LOGIN UI STYLES (INTEGRATED) --- */
+.new-login-container {
+    background-color: var(--bg-primary); /* White background for the login card */
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* Stronger shadow for the card */
+    text-align: center;
+    max-width: 28rem; /* Retained max-width for content */
+    width: 90%; /* Make it responsive within the popup */
+    border: 1px solid var(--border-color);
+    
+    /* Allow the card to size based on its content height and be centered by parent */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: var(--padding-lg);
-    text-align: center;
-    background: var(--bg-secondary);
-}
-.auth-icon {
-    font-size: 2.5rem;
-    margin-bottom: var(--padding-md);
-    color: var(--brand-primary);
-}
-.auth-container h1, .auth-prompt h1 {
-    font-size: 1.5em;
-    font-weight: 700;
-    margin-bottom: var(--padding-sm);
-}
-.auth-container p, .auth-prompt p {
-    color: var(--text-secondary);
-    max-width: 320px;
-    line-height: 1.6;
-    margin-bottom: 24px;
-}
-.login-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--padding-sm);
-    padding: 12px 24px;
-    border-radius: var(--radius-md);
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    box-shadow: var(--shadow-sm);
-    margin-bottom: var(--padding-md);
-    outline: none; /* Remove default outline */
-}
-.login-btn i { font-size: 1.2em; }
-.login-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-.google-btn { background: #4285F4; color: white; }
-.github-btn { background: #24292e; color: white; }
-.login-hint {
-    font-size: 0.8em;
-    color: var(--text-tertiary);
-    margin-top: var(--padding-md);
+    /* Removed: height: 100%; justify-content: center; padding-bottom: 0; */
+    flex-shrink: 0; /* Prevents shrinking smaller than its content */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
-/* --- DASHBOARD LAYOUT --- */
+/* Responsive padding for smaller popup sizes */
+@media (max-width: 640px) {
+    .new-login-container {
+        padding: 1.5rem; /* Slightly reduced padding for tighter fit */
+    }
+}
+
+.icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.icon-wrapper {
+    padding: 0.75rem;
+    background-color: var(--brand-primary); /* Using existing brand color */
+    border-radius: 50%;
+}
+
+.bell-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: white;
+}
+
+.title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary); /* Using existing text color */
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--text-secondary); /* Using existing text color */
+    margin-bottom: 2rem;
+}
+
+.google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color); /* Using existing border color */
+    border-radius: var(--radius-md); /* Using existing radius variable */
+    box-shadow: var(--shadow-sm); /* Using existing shadow variable */
+    background-color: white;
+    color: var(--text-primary); /* Using existing text color */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 1rem;
+    outline: none; /* Remove default outline */
+}
+
+.google-btn:hover {
+    background-color: var(--bg-tertiary); /* Using existing bg color */
+    transform: translateY(-1px);
+}
+
+.google-btn:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Specific blue focus shadow */
+}
+
+.google-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.75rem;
+}
+
+.privacy-text {
+    margin-top: 2rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary); /* Using existing text color */
+}
+
+.privacy-link {
+    font-weight: 500;
+    color: var(--brand-primary); /* Using existing brand color */
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    outline: none; /* Remove default outline */
+}
+
+.privacy-link:hover {
+    text-decoration: underline;
+}
+
+.privacy-link:focus {
+    text-decoration: underline;
+}
+
+.login-footer { /* Renamed from .footer to avoid conflict and specify scope */
+    text-align: center;
+    padding: 1.5rem 0;
+    font-size: 0.75rem;
+    color: var(--text-secondary); /* Using existing text color */
+    margin-top: auto; /* Pushes the footer to the bottom of the flex container */
+    width: 100%; /* Ensure it spans the width */
+}
+
+/* --- END NEW LOGIN UI STYLES --- */
+
+
+/* --- DASHBOARD LAYOUT (Existing styles below) --- */
 .dashboard-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100%; /* Fill the entire height of the wrapper when active */
+    width: 100%; /* Fill the entire width of the wrapper when active */
+    background-color: var(--bg-primary); /* White background for the dashboard content area */
+    box-shadow: var(--shadow-md); /* Add shadow back for dashboard container */
 }
 .tabs-nav {
     display: flex;
@@ -326,6 +412,54 @@ body {
     padding: 40px var(--padding-lg);
     font-size: 0.9em;
 }
+
+/* Auth prompt inside tabs (e.g., GitHub) */
+.auth-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1; /* Allow it to fill space */
+    padding: var(--padding-lg);
+    text-align: center;
+    background: var(--bg-primary); /* White background like a card */
+    margin: var(--padding-lg); /* Margin to separate it from edges */
+    border-radius: var(--radius-lg); /* Rounded corners */
+    box-shadow: var(--shadow-sm); /* Subtle shadow */
+}
+/* Ensure auth-prompt text color is readable */
+.auth-prompt p {
+    color: var(--text-secondary);
+    max-width: 320px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+/* Login hint style for auth-prompt */
+.auth-prompt .login-hint {
+    font-size: 0.8em;
+    color: var(--text-tertiary);
+    margin-top: var(--padding-md);
+}
+/* Specific button styles for auth-prompt (copied from old login-btn but applied here) */
+.auth-prompt .login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--padding-sm);
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--padding-md);
+    outline: none;
+}
+.auth-prompt .login-btn i { font-size: 1.2em; }
+.auth-prompt .login-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.auth-prompt .github-btn { background: #24292e; color: white; }
+
 
 /* --- WHITELIST SIDEBAR --- */
 .whitelist-sidebar {

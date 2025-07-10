@@ -1,4 +1,3 @@
-// popup.js
 document.addEventListener('DOMContentLoaded', initializeExtension);
 
 const BASE_API_URL = 'https://gonotifai.com/api/tab'; // Base URL for all your tab APIs
@@ -12,6 +11,8 @@ let statusMessageDiv; // NEW: Status message div
 // Login UI elements
 let loginContainer;
 let googleLoginBtn;
+let privacyLinkBtn; // New: Reference for the privacy link button
+let currentYearSpan; // New: Reference for the current year span
 let githubLoginBtn; // Now refers to the button in the GitHub tab
 
 // Dashboard UI elements
@@ -838,6 +839,8 @@ function assignUIElements() {
 
     loginContainer = document.getElementById('login-container');
     googleLoginBtn = document.getElementById('google-login-btn');
+    privacyLinkBtn = document.getElementById('privacy-link-btn'); // NEW: Assign privacy link button
+    currentYearSpan = document.getElementById('current-year'); // NEW: Assign current year span
     githubLoginBtn = document.getElementById('github-login-btn-tab'); // The GitHub login button inside the tab
 
     dashboardContainer = document.getElementById('dashboard-container');
@@ -927,11 +930,24 @@ function initializeExtension() {
     // Assign all UI elements here after DOMContentLoaded
     assignUIElements();
 
+    // Set current year in the new footer
+    if (currentYearSpan) {
+        currentYearSpan.textContent = new Date().getFullYear();
+    }
+
     // Attach login button listeners for initial login screen
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
             chrome.tabs.create({ url: `${AUTH_API_URL}/google` });
             showErrorMessage('Please log in in the new tab. After successful login, close that tab and then click the extension icon again to refresh this dashboard.');
+        });
+    }
+
+    // Handle privacy policy link click (from the new login design)
+    if (privacyLinkBtn) {
+        privacyLinkBtn.addEventListener('click', () => {
+            // Replace with your actual privacy policy URL
+            chrome.tabs.create({ url: 'https://gonotifai.com/privacy' }); // Example URL
         });
     }
 
