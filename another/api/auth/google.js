@@ -289,6 +289,11 @@ router.get('/', async (req, res) => {
 
     <h1 class="title">You're all set!</h1>
     <p class="subtitle">You have successfully logged in. Let's get you started with NotifAI.</p>
+    <div style="margin-bottom: 1.5rem;">
+  <img src="${user.picture}" alt="Profile Picture" style="width: 64px; height: 64px; border-radius: 50%; margin-bottom: 0.5rem;" />
+  <div style="color: #111827; font-weight: 600;">${user.name}</div>
+  <div style="color: #6b7280;">${user.email}</div>
+</div>
 
     <div class="steps">
       <h2>How to Use the Extension</h2>
