@@ -7,8 +7,8 @@ const { analyzeEmail } = require('../utils/geminiService'); // Make sure this pa
 
 router.get('/', async (req, res) => {
   try {
-    // refreshTokenMiddleware ने पहले ही client को इनिशियलाइज़ और रीफ्रेश कर दिया है
-    const oauth2Client = req.googleOAuth2Client; // <-- **इसे यहां उपयोग करें**
+   
+    const oauth2Client = req.googleOAuth2Client; 
 
     if (!oauth2Client) {
         console.error('linkedinTabRoutes: googleOAuth2Client not found on request. Middleware might have failed.');

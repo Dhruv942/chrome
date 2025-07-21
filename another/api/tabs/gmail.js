@@ -1,4 +1,4 @@
-// api/tabs/gmail.js
+
 const express = require('express');
 const router = express.Router();
 const { google } = require('googleapis');
@@ -16,13 +16,12 @@ router.get('/', async (req, res) => {
 
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-    // **यहाँ q पैरामीटर को अपडेट करें**
-    // वही बेहतर फ़िल्टरिंग लागू करें जो recommendations.js में है
+   
     const messagesRes = await gmail.users.messages.list({ 
         userId: 'me', 
-        maxResults: 20, // या तुम्हारी ज़रूरत के हिसाब से
+        maxResults: 20, 
         q: 'is:unread -in:spam -in:promotions -category:social -category:forums -from:newsletter -from:marketing -label:read -subject:"unsubscribe" -from:linkedin.com' 
-        // मैंने -from:linkedin.com भी रखा है क्योंकि यह तुम्हारे पिछले q में था
+        
     });
     const messages = messagesRes.data.messages || [];
     
@@ -73,8 +72,7 @@ router.get('/', async (req, res) => {
 
     const allProcessedEmails = (await Promise.all(emailPromises)).filter(Boolean);
 
-    // यह फ़िल्टर अब कम काम करेगा क्योंकि q पैरामीटर ने पहले ही काफी कुछ फ़िल्टर कर दिया है
-    // फिर भी इसे सुरक्षित उपाय के तौर पर रखें
+   
     const filteredEmails = allProcessedEmails.filter(email => 
       email.isUrgent === true || email.isImportant === true
     );
